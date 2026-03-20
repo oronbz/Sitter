@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="screenshots/icon.png" width="128" height="128" alt="Sitter icon">
+</p>
+
 # Sitter
 
 A macOS menu bar app for alternating between sitting and standing at a standing desk. Helps avoid fatigue and over-sitting with configurable timers and notifications.
