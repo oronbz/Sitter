@@ -40,12 +40,24 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         _ center: UNUserNotificationCenter,
         didReceive response: UNNotificationResponse
     ) async {
-        let name = switch response.actionIdentifier {
-        case "SWITCH_ACTION": Notification.Name("SitterTimerSwitchAction")
-        default: Notification.Name("SitterTimerDismissAction")
-        }
-        await MainActor.run {
-            NotificationCenter.default.post(name: name, object: nil)
+        let content = response.notification.request.content
+
+        switch response.actionIdentifier {
+        case "SWITCH_ACTION":
+            let userInfo: [String: Any]
+            if let raw = content.userInfo["targetPosition"] as? String,
+               let target = Position(rawValue: raw) {
+                userInfo = ["targetPosition": target]
+            } else {
+                userInfo = [:]
+            }
+            await MainActor.run {
+                NotificationCenter.default.post(name: .timerSwitchAction, object: nil, userInfo: userInfo)
+            }
+        default:
+            await MainActor.run {
+                NotificationCenter.default.post(name: .timerDismissAction, object: nil)
+            }
         }
     }
 }

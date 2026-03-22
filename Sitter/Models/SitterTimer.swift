@@ -63,8 +63,12 @@ class SitterTimer {
 
         switchObserver = NotificationCenter.default.addObserver(
             forName: .timerSwitchAction, object: nil, queue: .main
-        ) { [weak self] _ in
-            self?.switchPosition()
+        ) { [weak self] notification in
+            if let target = notification.userInfo?["targetPosition"] as? Position {
+                self?.switchToPosition(target)
+            } else {
+                self?.switchPosition()
+            }
         }
 
         dismissObserver = NotificationCenter.default.addObserver(
@@ -77,6 +81,7 @@ class SitterTimer {
     func start() {
         guard state != .running else { return }
         if state == .expired {
+            NotificationManager.shared.removeDeliveredNotifications()
             remainingSeconds = currentDurationSeconds
         }
         state = .running
@@ -92,7 +97,13 @@ class SitterTimer {
         if state == .running { pause() } else { start() }
     }
 
+    func switchToPosition(_ target: Position) {
+        guard currentPosition != target else { return }
+        switchPosition()
+    }
+
     func switchPosition() {
+        NotificationManager.shared.removeDeliveredNotifications()
         stopTickTimer()
         currentPosition = currentPosition.next
         remainingSeconds = currentDurationSeconds
@@ -101,6 +112,7 @@ class SitterTimer {
     }
 
     func restart() {
+        NotificationManager.shared.removeDeliveredNotifications()
         stopTickTimer()
         remainingSeconds = currentDurationSeconds
         state = .running

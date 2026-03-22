@@ -27,6 +27,7 @@ class NotificationManager {
         content.body = "Your \(position.label.lowercased()) session is complete."
         content.sound = .default
         content.categoryIdentifier = "TIMER_EXPIRED"
+        content.userInfo = ["targetPosition": position.next.rawValue]
 
         let request = UNNotificationRequest(
             identifier: "timer-expired-\(UUID().uuidString)",
@@ -42,5 +43,9 @@ class NotificationManager {
                 print("[Sitter] ✅ Notification sent")
             }
         }
+    }
+
+    func removeDeliveredNotifications() {
+        UNUserNotificationCenter.current().removeAllDeliveredNotifications()
     }
 }
